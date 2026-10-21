@@ -3,19 +3,33 @@ import secrets
 from typing import Literal
 
 import numpy as np
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field, model_validator
+from fastapi.security import APIKeyHeader
 
 app = FastAPI(title="KOMPAS Python Lab", version="0.1.0")
 
+api_key_header = APIKeyHeader(
+    name="X-API-Key",
+    auto_error=False
+)
 
-def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
+def require_api_key(
+    x_api_key: str | None = Depends(api_key_header)
+) -> None:
     expected = os.getenv("KOMPAS_API_KEY", "")
     if not expected:
-        raise HTTPException(status_code=503, detail="API key is not configured")
-    if not x_api_key or not secrets.compare_digest(x_api_key, expected):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
+        raise HTTPException(
+            status_code=503,
+            detail="API key is not configured"
+        )
+    if not x_api_key or not secrets.compare_digest(
+        x_api_key, expected
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized"
+        )
 
 class MonteCarloRequest(BaseModel):
     simulations: int = Field(default=10000, ge=100, le=100000)
