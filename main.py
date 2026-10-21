@@ -6,7 +6,7 @@ import numpy as np
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field, model_validator
 
-app = FastAPI(title="KOMPAS Python Lab", version="0.1.0", docs_url=None, redoc_url=None)
+app = FastAPI(title="KOMPAS Python Lab", version="0.1.0")
 
 
 def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
