@@ -1,41 +1,33 @@
-# KOMPAS Python Lab
+# ALIFE · KOMPAS Python Lab v0.2.0
 
-Independent numerical API for the experimental KOMPAS orchestrator.
+A protected numerical microservice for KOMPAS. Endpoints:
 
-## Render Web Service settings
+- `GET /health` (public)
+- `POST /v1/monte-carlo` (unchanged from v0.1.0)
+- `POST /v1/probability/binomial`
+- `POST /v1/statistics/summary`
+- `POST /v1/statistics/one-sample-t-test`
 
-- **Language:** Python 3
-- **Build Command:** `pip install -r requirements.txt`
-- **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-- **Environment variable:** `KOMPAS_API_KEY` — a long random secret; set it **only** in Render Environment, never commit it to GitHub.
+All POST endpoints require `X-API-Key`, configured through Render's `KOMPAS_API_KEY` environment variable. Never commit the key.
 
-Use an available plan you are comfortable with. A free plan, if offered, may sleep after inactivity.
+Render build: `pip install -r requirements.txt`
+Render start: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
-## Health check
+Open `/docs`, click Authorize, and enter the API key for interactive tests. Documentation is public; computation requires authorization.
 
-`GET https://YOUR-SERVICE.onrender.com/health`
-
-Expected: `{"status":"ok","service":"kompas-python-lab","version":"0.1.0"}`
-
-## Protected calculation
-
-`POST /v1/monte-carlo`
-
-Header: `X-API-Key: YOUR_SECRET`
-
-JSON body:
-
+Sample binomial request:
 ```json
-{
-  "simulations": 10000,
-  "seed": 42,
-  "distribution": "normal",
-  "mean": 100,
-  "std": 15,
-  "threshold": 120
-}
+{"trials":10,"success_probability":0.5,"threshold":7}
 ```
 
-Returns simulation statistics, quantiles and estimated probability above threshold.
+Sample descriptive statistics request:
+```json
+{"values":[10,12,14,16,18]}
+```
 
-Security: no arbitrary Python code execution, strict request validation, bounded simulations, secret API key.
+Sample t-test request:
+```json
+{"values":[11,12,13,14,15],"hypothesized_mean":10,"alternative":"greater","confidence_level":0.95}
+```
+
+Only statistical calculations are implemented here. Forecasting, Bayesian inference, optimization and game theory are planned, not yet implemented.
